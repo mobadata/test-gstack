@@ -5,7 +5,9 @@ import type { InboxRow } from "@/lib/mocks/inbox";
 import type { DraftStatus } from "@/lib/domain/draft-state";
 import {
   canHumanApprove,
+  canHumanReject,
   draftStatusLabelFr,
+  isDraftBodyEditable,
   isTerminalDraftStatus,
 } from "@/lib/domain/draft-state";
 
@@ -49,6 +51,8 @@ export function InboxView({ rows }: InboxViewProps) {
   const body = draftBodies[selected.id] ?? selected.draftBody;
   const terminal = isTerminalDraftStatus(status);
   const canApprove = canHumanApprove(status);
+  const bodyEditable = isDraftBodyEditable(status);
+  const canReject = canHumanReject(status);
 
   function setStatusForSelected(next: DraftStatus) {
     setLocalStatuses((prev) => ({ ...prev, [selected.id]: next }));
@@ -123,10 +127,10 @@ export function InboxView({ rows }: InboxViewProps) {
         <textarea
           className="mb-3 min-h-[120px] w-full resize-y rounded border border-[var(--inbox-border)] bg-[#fafafa] px-3 py-2 text-[13px] text-[var(--inbox-text)] outline-none focus:border-[var(--inbox-accent)] focus:ring-1 focus:ring-[var(--inbox-accent)] disabled:opacity-60"
           value={body}
-          disabled={terminal}
+          disabled={!bodyEditable}
           onChange={(e) => {
             setDraftBodies((prev) => ({ ...prev, [selected.id]: e.target.value }));
-            if (status === "pending_review") {
+            if (status === "pending_review" || status === "failed") {
               setStatusForSelected("edited");
             }
           }}
@@ -134,7 +138,7 @@ export function InboxView({ rows }: InboxViewProps) {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={terminal}
+            disabled={!canReject}
             onClick={() => setStatusForSelected("rejected")}
             className="rounded border border-[var(--inbox-border)] bg-white px-4 py-2 text-sm font-medium text-[var(--inbox-text)] hover:bg-[var(--inbox-row-hover)] disabled:cursor-not-allowed disabled:opacity-50"
           >

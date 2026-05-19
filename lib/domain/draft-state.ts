@@ -19,7 +19,28 @@ export function isTerminalDraftStatus(status: DraftStatus): boolean {
 }
 
 export function canHumanApprove(status: DraftStatus): boolean {
-  return status === "pending_review" || status === "edited";
+  return (
+    status === "pending_review" ||
+    status === "edited" ||
+    status === "failed"
+  );
+}
+
+/** Texte du brouillon modifiable (gel après validation humaine ou état terminal). */
+export function isDraftBodyEditable(status: DraftStatus): boolean {
+  return (
+    status === "pending_review" ||
+    status === "edited" ||
+    status === "failed"
+  );
+}
+
+export function canHumanReject(status: DraftStatus): boolean {
+  return (
+    status === "pending_review" ||
+    status === "edited" ||
+    status === "failed"
+  );
 }
 
 export function draftStatusLabelFr(status: DraftStatus): string {
